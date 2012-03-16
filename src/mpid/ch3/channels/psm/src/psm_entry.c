@@ -249,12 +249,18 @@ static void psm_preinit(int pg_size)
         }   
         free(fls);
 
+        /* we override any existing settings for MPI_LOCALNRANKS/RANKID
+         * so that one MPI job can be launched from another MPI job,
+         * in which case the second job inherits its environment from
+         * the first, so these values will be wrong, this use case came
+         * up when a small MPI job was driving a regression suite of MPI
+         * tests */
         PMI_Barrier();
         DBG("localid %d localranks %d\n", id, n);
         snprintf(scratch, sizeof(scratch), "%d", n);
-	setenv("MPI_LOCALNRANKS", scratch, 0);
+	setenv("MPI_LOCALNRANKS", scratch, 1);
         snprintf(scratch, sizeof(scratch), "%d", id);
-	setenv("MPI_LOCALRANKID", scratch, 0);
+	setenv("MPI_LOCALRANKID", scratch, 1);
 
         /* Should not override user settings. Updating to handle all 
          * possible scenarios. Refer to TRAC Ticket #457 */
