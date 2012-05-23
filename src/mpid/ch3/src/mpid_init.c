@@ -147,8 +147,16 @@ void init_debug1() {
     if ( bt != NULL ) {
         backtrace = !!atoi( bt );
     }
-    setup_error_sighandler( backtrace );
-    // ignore error code, failure if not fatal
+
+    /* disable registration of signals unless requested */
+    char* sigs = getenv("MV2_DEBUG_REGISTER_SIGNALS");
+    if (sigs != NULL) {
+      int sigs_value = atoi(sigs);
+      if (sigs_value) {
+        setup_error_sighandler( backtrace );
+        // ignore error code, failure if not fatal
+      }
+    }
     
     // Initialize DEBUG variables
     initialize_debug_variables();

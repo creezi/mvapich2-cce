@@ -72,8 +72,12 @@ void error_sighandler(int sig, siginfo_t *info, void *secret) {
     PRINT_ERROR( "Caught error: %s (signal %d)\n", sys_siglist[sig], sig );
     // Show backtrace if required
     if ( show_backtrace ) print_backtrace();
+
+    // ATM: this produced an infinite loop in CHAOS5 with PGI 11.1 Fortran,
+    // so comment it out
+    //
     // Raise the signal again with default handler
-    raise( sig );
+    //raise( sig );
 }
 
 int setup_error_sighandler_helper( int signal ) {
