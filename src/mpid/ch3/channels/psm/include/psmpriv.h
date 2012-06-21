@@ -101,6 +101,7 @@ struct psmdev_info_t {
 extern struct psmdev_info_t psmdev_cw;
 extern uint32_t             ipath_rndv_thresh;
 extern uint8_t              ipath_debug_enable;
+extern uint8_t              ipath_mv2_use_blocking;
 extern pthread_spinlock_t   psmlock;
 
 void psm_queue_init();

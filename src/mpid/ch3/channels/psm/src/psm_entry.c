@@ -25,6 +25,7 @@ struct psmdev_info_t    psmdev_cw;
 uint32_t                ipath_rndv_thresh;
 uint8_t                 ipath_debug_enable;
 uint32_t                ipath_dump_frequency;
+uint8_t                 ipath_mv2_use_blocking;
 
 static char    scratch[WRBUFSZ];
 static char             *kvsid;
@@ -444,6 +445,12 @@ static void psm_other_init(MPIDI_PG_t *pg)
     ipath_dump_frequency = 10;
     if((flag = getenv("MV2_PSM_DUMP_FREQUENCY")) != NULL) {
         ipath_dump_frequency = atoi(flag);
+    }
+
+    /* determine whether we should busy spin or try to sleep
+     * when waiting for a message */
+    if ((value = getenv("MV2_USE_BLOCKING")) != NULL) {
+        ipath_mv2_use_blocking = !!atoi(value);
     }
 
     psm_queue_init();

@@ -198,6 +198,10 @@ int psm_progress_wait(int blocking)
     int mpi_errno = MPI_SUCCESS;
     int yield_count = 3;
 
+    /* determine whether we should yeild the cpu or just busy spin */
+    int check_yield = ((MPIR_ThreadInfo.thread_provided == MPI_THREAD_MULTIPLE) ||
+                       (ipath_mv2_use_blocking));
+
     _psm_enter_;
     do {
       psmerr = psm_mq_ipeek(psmdev_cw.mq, &gblpsmreq, NULL);
@@ -213,9 +217,15 @@ int psm_progress_wait(int blocking)
 	}
 	goto out_2;
       }
-      else if ((MPIR_ThreadInfo.thread_provided == MPI_THREAD_MULTIPLE) &&
-	       (--yield_count == 0))
-	goto out;
+      else if (check_yield && (--yield_count == 0)) {
+        if (MPIR_ThreadInfo.thread_provided == MPI_THREAD_MULTIPLE) {
+	  goto out;
+        } else {
+          /* busy spin, but be nice about it and let others run */
+          sched_yeild();
+          yield_count = 1;
+        }
+      }
     } while (blocking);
     
  out:
