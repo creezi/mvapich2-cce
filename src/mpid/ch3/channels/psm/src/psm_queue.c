@@ -222,7 +222,7 @@ int psm_progress_wait(int blocking)
 	  goto out;
         } else {
           /* busy spin, but be nice about it and let others run */
-          sched_yeild();
+          sched_yield();
           yield_count = 1;
         }
       }

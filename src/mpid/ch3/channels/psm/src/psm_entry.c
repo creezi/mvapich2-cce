@@ -449,8 +449,9 @@ static void psm_other_init(MPIDI_PG_t *pg)
 
     /* determine whether we should busy spin or try to sleep
      * when waiting for a message */
-    if ((value = getenv("MV2_USE_BLOCKING")) != NULL) {
-        ipath_mv2_use_blocking = !!atoi(value);
+    ipath_mv2_use_blocking = 0;
+    if ((flag = getenv("MV2_USE_BLOCKING")) != NULL) {
+        ipath_mv2_use_blocking = !!atoi(flag);
     }
 
     psm_queue_init();
