@@ -73,6 +73,7 @@ int MPI_Intercomm_merge(MPI_Comm intercomm, int high, MPI_Comm *newintracomm)
     int mpi_errno = MPI_SUCCESS;
     MPID_Comm *comm_ptr = NULL;
     MPID_Comm *newcomm_ptr;
+    MPID_Info *info_ptr;
     int  local_high, remote_high, i, j, new_size;
     MPIR_Context_id_t new_context_id;
     int errflag = FALSE;
@@ -221,6 +222,11 @@ int MPI_Intercomm_merge(MPI_Comm intercomm, int high, MPI_Comm *newintracomm)
     newcomm_ptr->remote_size	= newcomm_ptr->local_size   = new_size;
     newcomm_ptr->rank		= -1;
     newcomm_ptr->comm_kind	= MPID_INTRACOMM;
+
+    /* TICKET_271: assign default hints */
+    mpi_errno = MPIR_Comm_get_default_info(&info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    comm_ptr->info_ptr = info_ptr;
 
     /* Now we know which group comes first.  Build the new vcr 
        from the existing vcrs */

@@ -33,6 +33,18 @@ extern void MPIDI_CH3_RMA_SetAccImmed( int );
 #define MPIDI_PASSIVE_TARGET_DONE_TAG  348297
 #define MPIDI_PASSIVE_TARGET_RMA_TAG 563924
 
+/* TICKET_271: create default info hints */
+static int MPIDI_Win_get_default_info(MPID_Info **info_p_p)
+{
+  int mpi_errno = MPI_SUCCESS;
+
+  mpi_errno = MPIU_Info_alloc(info_p_p);
+  if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+
+ fn_exit:
+  return mpi_errno;
+}
+
 
 #undef FUNCNAME
 #define FUNCNAME MPIDI_Win_create
@@ -44,6 +56,7 @@ int MPIDI_Win_create(void *base, MPI_Aint size, int disp_unit, MPID_Info *info,
     int mpi_errno=MPI_SUCCESS, i, k, comm_size, rank;
     MPI_Aint *tmp_buf;
     MPID_Comm *win_comm_ptr;
+    MPID_Info *win_info_ptr;
     int errflag = FALSE;
     MPIU_CHKPMEM_DECL(4);
     MPIU_CHKLMEM_DECL(1);
@@ -120,6 +133,13 @@ int MPIDI_Win_create(void *base, MPI_Aint size, int disp_unit, MPID_Info *info,
     if (mpi_errno) MPIU_ERR_POP(mpi_errno);
     (*win_ptr)->comm_ptr   = win_comm_ptr;
     (*win_ptr)->myrank = rank;
+
+    /* TICKET_271: free the info object associated with the window,
+     * currently ignore all hints provided by user */
+    mpi_errno = MPIDI_Win_get_default_info(&win_info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    (*win_ptr)->info_ptr   = win_info_ptr;
+
 #if defined (_OSU_PSM_)
     (*win_ptr)->rank_mapping = MPIU_Malloc(comm_size * sizeof(uint32_t));
     if((*win_ptr)->rank_mapping == NULL) {
@@ -238,6 +258,7 @@ int MPIDI_Win_free(MPID_Win **win_ptr)
     int mpi_errno=MPI_SUCCESS, total_pt_rma_puts_accs;
     int in_use;
     MPID_Comm *comm_ptr;
+    MPID_Info *info_ptr;
     int errflag = FALSE;
     MPIDI_STATE_DECL(MPID_STATE_MPIDI_WIN_FREE);
         
@@ -321,6 +342,11 @@ int MPIDI_Win_free(MPID_Win **win_ptr)
     MPIU_Free((*win_ptr)->rank_mapping);
 #endif /* _OSU_PSM_ */    
     
+    /* TICKET_271: free the info object associated with the window */
+    info_ptr = (*win_ptr)->info_ptr;
+    mpi_errno = MPIU_Info_free(info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+
     mpi_errno = MPIR_Comm_free_impl(comm_ptr);
     if (mpi_errno) MPIU_ERR_POP(mpi_errno);
 

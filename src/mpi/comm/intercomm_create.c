@@ -238,6 +238,7 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
     int is_low_group = 0;
     int i;
     MPID_Comm *newcomm_ptr;
+    MPID_Info *info_ptr;
     int errflag = FALSE;
     MPIU_CHKLMEM_DECL(4);
     MPID_MPI_STATE_DECL(MPID_STATE_MPI_INTERCOMM_CREATE);
@@ -535,6 +536,11 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
     newcomm_ptr->comm_kind	= MPID_INTERCOMM;
     newcomm_ptr->local_comm	= 0;
     newcomm_ptr->is_low_group	= is_low_group;
+
+    /* TICKET_271: assign default hints */
+    mpi_errno = MPIR_Comm_get_default_info(&info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    newcomm_ptr->info_ptr = info_ptr;
 
     mpi_errno = MPID_VCR_CommFromLpids( newcomm_ptr, remote_size, remote_lpids );
     if (mpi_errno) goto fn_fail;

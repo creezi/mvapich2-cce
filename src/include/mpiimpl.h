@@ -1210,6 +1210,7 @@ typedef struct MPID_Comm {
     struct MPID_TopoOps  *topo_fns; /* Pointer to a table of functions
 				       implementting the topology routines
 				    */
+    MPID_Info *info_ptr;            /* TICKET_271: info hints currently associated with comm */
 
 #ifdef MPID_HAS_HETERO
     int is_hetero;
@@ -1567,6 +1568,7 @@ typedef struct MPID_Win {
 				    detect operations on self) */
     int lockRank;                /* If within an MPI_Win_lock epoch, 
 				    the rank that we locked */
+    MPID_Info *info_ptr;         /* TICKET_271: info hints currently associated with win */
 #ifdef USE_THREADED_WINDOW_CODE
     /* These were causing compilation errors.  We need to figure out how to
        integrate threads into MPICH2 before including these fields. */

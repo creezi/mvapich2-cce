@@ -11,3 +11,5 @@
 int MPIR_Get_intercomm_contextid( MPID_Comm *, MPIR_Context_id_t *, MPIR_Context_id_t * );
 /* void MPIR_Free_contextid( MPIR_Context_id_t ); */
 
+/* TICKET_271: create default info hints */
+int MPIR_Comm_get_default_info(MPID_Info **info_p_p);

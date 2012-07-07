@@ -68,3 +68,43 @@ fn_fail:
     return mpi_errno;
 }
 
+/* TICKET_271: duplicate info object */
+/* Allocate and initialize an MPI_Info object,
+ * fill it with key/values from existing object.
+ *
+ * Returns MPICH2 error codes */
+#undef FUNCNAME
+#define FUNCNAME MPIU_Info_dup
+#undef FCNAME
+#define FCNAME MPIU_QUOTE(FUNCNAME)
+int MPIU_Info_dup(MPID_Info *info_ptr, MPID_Info **newinfo_p_p)
+{
+    MPID_Info *curr_old, *curr_new;
+    int mpi_errno = MPI_SUCCESS;
+
+    /* Note that this routine allocates info elements one at a time.
+       In the multithreaded case, each allocation may need to acquire
+       and release the allocation lock.  If that is ever a problem, we
+       may want to add an "allocate n elements" routine and execute this
+       it two steps: count and then allocate */
+    /* FIXME : multithreaded */
+    mpi_errno = MPIU_Info_alloc(&curr_new);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    *newinfo_p_p = curr_new;
+
+    curr_old = info_ptr->next;
+    while (curr_old)
+    {
+        mpi_errno = MPIU_Info_alloc(&curr_new->next);
+        if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+
+	curr_new	 = curr_new->next;
+	curr_new->key	 = MPIU_Strdup(curr_old->key);
+	curr_new->value	 = MPIU_Strdup(curr_old->value);
+
+	curr_old	 = curr_old->next;
+    }
+
+fn_fail:
+    return mpi_errno;
+}

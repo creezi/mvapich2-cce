@@ -559,6 +559,7 @@ int MPI_Comm_create(MPI_Comm comm, MPI_Group group, MPI_Comm *newcomm)
     int mpi_errno = MPI_SUCCESS;
     MPID_Comm *comm_ptr = NULL;
     MPID_Group *group_ptr;
+    MPID_Info *info_ptr;
     MPID_MPI_STATE_DECL(MPID_STATE_MPI_COMM_CREATE);
 
     MPIR_ERRTEST_INITIALIZED_ORDIE();
@@ -617,6 +618,11 @@ int MPI_Comm_create(MPI_Comm comm, MPI_Group group, MPI_Comm *newcomm)
         if (mpi_errno) MPIU_ERR_POP(mpi_errno);
     }
     /* ... end of body of routine ... */
+
+    /* TICKET_271: assign default hints */
+    mpi_errno = MPIR_Comm_get_default_info(&info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    comm_ptr->info_ptr = info_ptr;
 
 #if defined(_OSU_MVAPICH_) || defined(_OSU_PSM_)
     if (enable_shmem_collectives){

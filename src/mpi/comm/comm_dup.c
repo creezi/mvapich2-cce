@@ -53,6 +53,7 @@ extern int enable_split_comm(pthread_t);
 int MPIR_Comm_dup_impl(MPID_Comm *comm_ptr, MPID_Comm **newcomm_ptr)
 {
     int mpi_errno = MPI_SUCCESS;
+    MPID_Info *info_ptr;
     MPID_Attribute *new_attributes = 0;
 
     /* Copy attributes, executing the attribute copy functions */
@@ -77,6 +78,11 @@ int MPIR_Comm_dup_impl(MPID_Comm *comm_ptr, MPID_Comm **newcomm_ptr)
     if (mpi_errno) MPIU_ERR_POP(mpi_errno);
 
     (*newcomm_ptr)->attributes = new_attributes;
+
+    /* TICKET_271: we also dup the info hints */
+    mpi_errno = MPIU_Info_dup(comm_ptr->info_ptr, &info_ptr);
+    if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+    (*newcomm_ptr)->info_ptr = info_ptr;
 
  fn_exit:
     return mpi_errno;

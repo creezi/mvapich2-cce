@@ -1,7 +1,7 @@
-mpi_sources = comm_compare.c comm_create.c comm_dup.c comm_free.c \
- comm_get_name.c comm_group.c \
+mpi_sources = comm_compare.c comm_create.c comm_dup.c comm_dup_with_info.c comm_free.c \
+ comm_get_info.c comm_get_name.c comm_group.c \
  comm_rank.c comm_size.c comm_remote_group.c comm_remote_size.c \
- comm_set_name.c comm_split.c comm_test_inter.c \
+ comm_set_info.c comm_set_name.c comm_split.c comm_test_inter.c \
  intercomm_create.c intercomm_merge.c create_2level_comm.c
 
 HEADERS = mpicomm.h

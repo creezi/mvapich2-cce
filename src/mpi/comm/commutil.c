@@ -59,6 +59,18 @@ static void MPIR_Comm_dump_context_id(MPIR_Context_id_t context_id, char *out_st
 }
 #endif
 
+/* TICKET_271: create default info hints */
+int MPIR_Comm_get_default_info(MPID_Info **info_p_p)
+{
+  int mpi_errno = MPI_SUCCESS;
+
+  mpi_errno = MPIU_Info_alloc(info_p_p);
+  if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+
+ fn_exit:
+  return mpi_errno;
+}
+
 /* FIXME :
    Reusing context ids can lead to a race condition if (as is desirable)
    MPI_Comm_free does not include a barrier.  Consider the following:
@@ -101,6 +113,9 @@ int MPIR_Comm_init(MPID_Comm *comm_p)
     comm_p->coll_fns     = NULL;
     comm_p->topo_fns     = NULL;
     comm_p->name[0]      = '\0';
+
+    /* TICKET_271: initialize hints */
+    comm_p->info_ptr = NULL;
 
     comm_p->hierarchy_kind  = MPID_HIERARCHY_FLAT;
     comm_p->node_comm       = NULL;
@@ -1177,6 +1192,10 @@ static int comm_delete(MPID_Comm * comm_ptr, int isDisconnect)
             MPIU_Free(comm_ptr->intranode_table);
         if (comm_ptr->internode_table != NULL)
             MPIU_Free(comm_ptr->internode_table);
+
+        /* TICKET_271: free the info object */
+        if (comm_ptr->info_ptr != NULL)
+            MPIU_Info_free(comm_ptr->info_ptr);
 
         /* Free the context value.  This should come after freeing the
          * intra/inter-node communicators since those free calls won't

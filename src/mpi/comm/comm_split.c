@@ -114,6 +114,7 @@ int MPIR_Comm_split_impl(MPID_Comm *comm_ptr, int color, int key, MPID_Comm **ne
 {
     int mpi_errno = MPI_SUCCESS;
     MPID_Comm *local_comm_ptr;
+    MPID_Info *info_ptr;
     splittype *table, *remotetable=0;
     sorttype *keytable, *remotekeytable=0;
     int rank, size, remote_size, i, new_size, new_remote_size,
@@ -282,6 +283,11 @@ int MPIR_Comm_split_impl(MPID_Comm *comm_ptr, int color, int key, MPID_Comm **ne
 	/* sort key table.  The "color" entry is the rank of the corresponding
 	   process in the input communicator */
 	MPIU_Sort_inttable( keytable, new_size );
+
+        /* TICKET_271: assign default hints */
+        mpi_errno = MPIR_Comm_get_default_info(&info_ptr);
+        if (mpi_errno) MPIU_ERR_POP(mpi_errno);
+        (*newcomm_ptr)->info_ptr = info_ptr;
 
 	if (comm_ptr->comm_kind == MPID_INTERCOMM) {
 	    MPIU_CHKLMEM_MALLOC(remotekeytable,sorttype*,
