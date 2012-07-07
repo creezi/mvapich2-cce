@@ -45,13 +45,18 @@ static int MPIDI_Win_get_default_info(MPID_Info **info_p_p)
   mpi_errno = MPIU_Info_alloc(info_p_p);
   if (mpi_errno) MPIU_ERR_POP(mpi_errno);
 
+fn_exit:
   return mpi_errno;
+
+fn_fail:
+  goto fn_exit;
 }
 
 
 #undef FUNCNAME
 #define FUNCNAME MPIDI_Win_create
 #undef FCNAME
+
 #define FCNAME MPIDI_QUOTE(FUNCNAME)
 int MPIDI_Win_create(void *base, MPI_Aint size, int disp_unit, MPID_Info *info,
 		     MPID_Comm *comm_ptr, MPID_Win **win_ptr )

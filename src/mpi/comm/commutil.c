@@ -60,6 +60,10 @@ static void MPIR_Comm_dump_context_id(MPIR_Context_id_t context_id, char *out_st
 #endif
 
 /* TICKET_271: create default info hints */
+#undef FUNCNAME
+#define FUNCNAME MPIR_Comm_get_default_info
+#undef FCNAME
+#define FCNAME "MPIR_Comm_get_default_info"
 int MPIR_Comm_get_default_info(MPID_Info **info_p_p)
 {
   int mpi_errno = MPI_SUCCESS;
@@ -67,8 +71,11 @@ int MPIR_Comm_get_default_info(MPID_Info **info_p_p)
   mpi_errno = MPIU_Info_alloc(info_p_p);
   if (mpi_errno) MPIU_ERR_POP(mpi_errno);
 
- fn_exit:
+fn_exit:
   return mpi_errno;
+
+fn_fail:
+  goto fn_exit;
 }
 
 /* FIXME :
