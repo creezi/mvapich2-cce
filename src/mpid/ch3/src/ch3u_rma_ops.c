@@ -34,6 +34,10 @@ extern void MPIDI_CH3_RMA_SetAccImmed( int );
 #define MPIDI_PASSIVE_TARGET_RMA_TAG 563924
 
 /* TICKET_271: create default info hints */
+#undef FUNCNAME
+#define FUNCNAME MPIDI_Win_get_default_info
+#undef FCNAME
+#define FCNAME MPIDI_QUOTE(FUNCNAME)
 static int MPIDI_Win_get_default_info(MPID_Info **info_p_p)
 {
   int mpi_errno = MPI_SUCCESS;
@@ -41,7 +45,6 @@ static int MPIDI_Win_get_default_info(MPID_Info **info_p_p)
   mpi_errno = MPIU_Info_alloc(info_p_p);
   if (mpi_errno) MPIU_ERR_POP(mpi_errno);
 
- fn_exit:
   return mpi_errno;
 }
 
